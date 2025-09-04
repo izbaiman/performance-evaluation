@@ -1,0 +1,81 @@
+[
+    {
+        "id": 1,
+        "employee_id": "1052",
+        "title": "add the dashboard",
+        "description": "",
+        "status": "Assigned",
+        "assigned_on": "2025-09-02",
+        "deadline": "2025-09-02",
+        "time_spent": 3.5,
+        "reason": "I WAS DOING OTHER TASK"
+    },
+    {
+        "id": 2,
+        "employee_id": "1052",
+        "title": "add ",
+        "description": "",
+        "status": "Done",
+        "assigned_on": "2025-09-02",
+        "deadline": "2025-09-02",
+        "time_spent": 0
+    },
+    {
+        "id": 3,
+        "employee_id": "1052",
+        "title": "ADDDDD",
+        "description": "",
+        "status": "In Progress",
+        "assigned_on": "2025-09-03",
+        "deadline": "2025-09-03",
+        "time_spent": 0
+    },
+    {
+        "id": 4,
+        "employee_id": "1076",
+        "title": "AAAAAAAAAAAAAAAAAA",
+        "description": "",
+        "status": "Assigned",
+        "assigned_on": "2025-09-03",
+        "deadline": "2025-09-03",
+        "priority": "High",
+        "time_spent": 0,
+        "reason": ""
+    },
+    {
+        "id": 5,
+        "employee_id": "1078",
+        "title": "AAAAAAAAAAAAAAAAAA",
+        "description": "",
+        "status": "Assigned",
+        "assigned_on": "2025-09-03",
+        "deadline": "2025-09-03",
+        "priority": "High",
+        "time_spent": 0,
+        "reason": ""
+    },
+    {
+        "id": 6,
+        "employee_id": "1078",
+        "title": "AAAAAAAAAAAAAAAAAA",
+        "description": "",
+        "status": "Assigned",
+        "assigned_on": "2025-09-03",
+        "deadline": "2025-09-03",
+        "priority": "Low",
+        "time_spent": 0,
+        "reason": ""
+    },
+    {
+        "id": 7,
+        "employee_id": "1078",
+        "title": "AAAAAAAAAAAAAAAAAA",
+        "description": "",
+        "status": "Assigned",
+        "assigned_on": "2025-09-03",
+        "deadline": "2025-09-03",
+        "priority": "Low",
+        "time_spent": 0,
+        "reason": ""
+    }
+]

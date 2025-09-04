@@ -1,0 +1,20 @@
+[
+    {
+        "username": "Harry",
+        "password": "PASSWORD",
+        "role": "Manager",
+        "employee_id": null
+    },
+    {
+        "username": "Alice",
+        "password": "PASSWORD",
+        "role": "Employee",
+        "employee_id": "1052"
+    },
+    {
+        "username": "bob",
+        "password": "pbkdf2:sha256:260000$F2m3KuFaqlz0KDMP$e4e2578bb340bfa89c397e3b6acfd7b59c7d2378c10d16476f6f2a4b35613d9a",
+        "role": "Employee",
+        "employee_id": "2"
+    }
+]
