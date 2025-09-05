@@ -5,13 +5,18 @@ from utils import (
     log_time_spent, update_task_reason
 )
 from datetime import date
+from performance import show_performance  # Import the performance page function
 
 st.set_page_config(page_title="Employee Performance Platform", layout="centered")
 st.title("💼 Employee Performance Management Platform")
 
+# Initialize session state for login and page navigation
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.user = None
+
+if 'page' not in st.session_state:
+    st.session_state.page = 'main'  # default page
 
 # ---- Login screen ----
 if not st.session_state.logged_in:
@@ -37,110 +42,110 @@ else:
     if st.sidebar.button("Logout"):
         st.session_state.logged_in = False
         st.session_state.user = None
+        st.session_state.page = 'main'  # reset to main page on logout
         st.rerun()
 
-    # ---- MANAGER DASHBOARD ----
+    # Sidebar button for manager to view performance evaluation
     if user["role"] == "Manager":
-        st.header("📋 Manager Dashboard")
+        if st.sidebar.button("Performance Evaluation"):
+            st.session_state.page = 'performance'
 
-        st.subheader("Assign a New Task")
-        employees = load_employees()
-        employee_names = [f"{e['id']}: {e['Employee Name']}" for e in employees]
-        selected = st.selectbox("Select Employee", employee_names)
-        employee_id = selected.split(":")[0]
+    # If on performance page, show Back button
+    if st.session_state.page == 'performance':
+        if st.sidebar.button("Back to Main"):
+            st.session_state.page = 'main'
 
-        title = st.text_input("Task Title")
-        description = st.text_area("Task Description")
-        deadline = st.date_input("Deadline", min_value=date.today())
-        priority = st.selectbox("Priority", ["High", "Medium", "Low"])
+    # Render pages based on current state
+    if st.session_state.page == 'performance':
+        show_performance()
 
-        if st.button("Assign Task"):
-            assign_task(employee_id, title, description, str(deadline), priority)
-            st.success("✅ Task assigned successfully!")
+    else:
+        # ---- MANAGER DASHBOARD ----
+        if user["role"] == "Manager":
+            st.header("📋 Manager Dashboard")
 
-        import pandas as pd
+            st.subheader("Assign a New Task")
+            employees = load_employees()
+            employee_names = [f"{e['id']}: {e['Employee Name']}" for e in employees]
+            selected = st.selectbox("Select Employee", employee_names)
+            employee_id = selected.split(":")[0]
 
-        '''st.subheader("📌 All Tasks")
-        tasks = load_tasks()
-        for task in tasks:
-            emp_name = next((e['Employee Name'] for e in employees if e['id'] == task['employee_id']), "Unknown")
-            st.markdown(f"""
-            **Task ID:** {task['id']}  
-            **Employee:** {emp_name}  
-            **Title:** {task['title']}  
-            **Priority:** {task.get('priority', 'Not set')}  
-            **Status:** {task['status']}  
-            **Deadline:** {task['deadline']}  
-            **Time Spent:** {task['time_spent']} hrs  
-            **Reason (if any):** {task.get('reason', '')}  
-            ---
-            """)'''
+            title = st.text_input("Task Title")
+            description = st.text_area("Task Description")
+            deadline = st.date_input("Deadline", min_value=date.today())
+            priority = st.selectbox("Priority", ["High", "Medium", "Low"])
 
-        st.subheader("📌 All Tasks")
-        tasks = load_tasks()
+            if st.button("Assign Task"):
+                assign_task(employee_id, title, description, str(deadline), priority)
+                st.success("✅ Task assigned successfully!")
 
-        # Prepare data for display
-        task_data = []
-        for task in tasks:
-            emp_name = next((e['Employee Name'] for e in employees if e['id'] == task['employee_id']), "Unknown")
-            task_data.append({
-                "Task ID": task['id'],
-                "Employee": task['employee_id'],
-                "Title": task['title'],
-                "Priority": task.get('priority', 'Not set'),
-                "Status": task['status'],
-                "Deadline": task['deadline'],
-                "Time Spent (hrs)": task['time_spent'],
-                "Reason": task.get('reason', '')
-            })
+            import pandas as pd
 
-        # Create DataFrame
-        df = pd.DataFrame(task_data)
+            st.subheader("📌 All Tasks")
+            tasks = load_tasks()
 
-        # Display table
-        st.dataframe(df, use_container_width=True)
-
-    # ---- EMPLOYEE DASHBOARD ----
-    elif user["role"] == "Employee":
-        st.header("👷 Employee Dashboard")
-
-        employee_id = user["employee_id"]
-        tasks = get_tasks_for_employee(employee_id)
-
-        if not tasks:
-            st.info("You have no tasks assigned.")
-        else:
+            # Prepare data for display
+            task_data = []
             for task in tasks:
-                st.markdown(f"""
-                **Task ID:** {task['id']}  
-                **Title:** {task['title']}  
-                **Description:** {task['description']}  
-                **Priority:** {task.get('priority', 'Not set')}  
-                **Status:** {task['status']}  
-                **Deadline:** {task['deadline']}  
-                **Time Spent:** {task['time_spent']} hrs
-                """)
+                emp_name = next((e['Employee Name'] for e in employees if e['id'] == task['employee_id']), "Unknown")
+                task_data.append({
+                    "Task ID": task['id'],
+                    "Employee": task['employee_id'],
+                    "Title": task['title'],
+                    "Priority": task.get('priority', 'Not set'),
+                    "Status": task['status'],
+                    "Deadline": task['deadline'],
+                    "Time Spent (hrs)": task['time_spent'],
+                    "Reason": task.get('reason', '')
+                })
 
-                new_status = st.selectbox(f"Update status for Task {task['id']}",
-                                          ["No change", "Assigned", "In Progress", "Done"],
-                                          key=f"status_{task['id']}")
+            # Create DataFrame
+            df = pd.DataFrame(task_data)
 
-                hours_spent = st.number_input(f"Add hours spent on Task {task['id']}",
-                                              min_value=0.0, step=0.5,
-                                              key=f"hours_{task['id']}")
+            # Display table
+            st.dataframe(df, use_container_width=True)
 
-                reason = ""
-                if task["status"] != "Done":
-                    reason = st.text_area(f"Reason for incomplete Task {task['id']}",
-                                          value=task.get("reason", ""),
-                                          key=f"reason_{task['id']}")
+        # ---- EMPLOYEE DASHBOARD ----
+        elif user["role"] == "Employee":
+            st.header("👷 Employee Dashboard")
 
-                if st.button(f"Update Task {task['id']}", key=f"update_{task['id']}"):
-                    if new_status != "No change":
-                        update_task_status(task['id'], new_status)
-                    if hours_spent > 0:
-                        log_time_spent(task['id'], hours_spent)
-                    if reason.strip():
-                        update_task_reason(task['id'], reason.strip())
-                    st.success(f"Task {task['id']} updated successfully!")
-                    st.rerun()
+            employee_id = user["employee_id"]
+            tasks = get_tasks_for_employee(employee_id)
+
+            if not tasks:
+                st.info("You have no tasks assigned.")
+            else:
+                for task in tasks:
+                    st.markdown(f"""
+                    **Task ID:** {task['id']}  
+                    **Title:** {task['title']}  
+                    **Description:** {task['description']}  
+                    **Priority:** {task.get('priority', 'Not set')}  
+                    **Status:** {task['status']}  
+                    **Deadline:** {task['deadline']}  
+                    **Time Spent:** {task['time_spent']} hrs
+                    """)
+
+                    new_status = st.selectbox(f"Update status for Task {task['id']}",
+                                              ["No change", "Assigned", "In Progress", "Done"],
+                                              key=f"status_{task['id']}")
+
+                    hours_spent = st.number_input(f"Add hours spent on Task {task['id']}",
+                                                  min_value=0.0, step=0.5,
+                                                  key=f"hours_{task['id']}")
+
+                    reason = ""
+                    if task["status"] != "Done":
+                        reason = st.text_area(f"Reason for incomplete Task {task['id']}",
+                                              value=task.get("reason", ""),
+                                              key=f"reason_{task['id']}")
+
+                    if st.button(f"Update Task {task['id']}", key=f"update_{task['id']}"):
+                        if new_status != "No change":
+                            update_task_status(task['id'], new_status)
+                        if hours_spent > 0:
+                            log_time_spent(task['id'], hours_spent)
+                        if reason.strip():
+                            update_task_reason(task['id'], reason.strip())
+                        st.success(f"Task {task['id']} updated successfully!")
+                        st.rerun()
